@@ -26,20 +26,42 @@
               <td class="text-xs-center">{{ props.item.name }}</td>
               <td class="text-xs-center">{{ props.item.amount }}</td>
               <td class="text-xs-center">{{ props.item.status }}</td>
+              <td class="text-xs-center">
+                <v-menu offset-y>
+                  <template v-slot:activator="{ on }">
+                    <v-btn
+                      xs
+                      v-on="on"
+                    >
+                      Update Status
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-tile @click="updateStatus(props.item.sales_id, 'Ordered')">
+                      <v-list-tile-title>Ordered</v-list-tile-title>
+                    </v-list-tile>
+                    <v-list-tile @click="updateStatus(props.item.sales_id, 'Processing')">
+                      <v-list-tile-title>Processing</v-list-tile-title>
+                    </v-list-tile>
+                    <v-list-tile @click="updateStatus(props.item.sales_id, 'Ready')">
+                      <v-list-tile-title>Ready</v-list-tile-title>
+                    </v-list-tile>
+                    <v-list-tile @click="updateStatus(props.item.sales_id, 'Complete')">
+                      <v-list-tile-title>Complete</v-list-tile-title>
+                    </v-list-tile>
+                  </v-list>
+                </v-menu>
+                <v-btn xs target="_blank" :href="'/bill/'+props.item.sales_id">Print</v-btn>
+              </td>
             </template>
             <v-alert v-slot:no-results :value="true" color="error" icon="warning">
               Your search for "{{ search }}" found no results.
             </v-alert>
-            <template v-slot:footer>
-              <td :colspan="headers.length - 2"></td>
-              <td>{{ this.jTotalDebit }}</td>
-              <td>{{ this.jTotalCredit }}</td>
-            </template>
           </v-data-table>
         </v-card>
         <v-dialog
           v-model="dialog"
-          width="500"
+          fullscreen hide-overlay transition="dialog-bottom-transition"
         >
           <template v-slot:activator="{ on }">
             <v-btn
@@ -64,37 +86,39 @@
             <v-card-text>
               <v-container grid-list-md>
                 <v-layout wrap>
-                  <v-flex xs12 sm6 md4>
-                    <v-menu
-                      v-model="menu2"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      lazy
-                      transition="scale-transition"
-                      offset-y
-                      full-width
-                      min-width="290px"
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-text-field
-                          v-model="date"
-                          label="Date"
-                          readonly
-                          v-on="on"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker v-model="date" @input="menu2 = false"></v-date-picker>
-                    </v-menu>
+                  <v-flex xs12 md4>
+                    <v-text-field v-model="soName" label="Customer Name*" required></v-text-field>
                   </v-flex>
+                  <v-flex xs12 md4>
+                    <v-text-field v-model="soAddress" label="Customer Address"></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 md4>
+                    <v-text-field v-model="soPhone" label="Customer Phone"></v-text-field>
+                  </v-flex>
+                  <template v-for="item in soItems">
+                    <v-flex xs12 md4 v-bind:key="item">
+                      <v-combobox
+                        v-model="item.iid"
+                        :items="invlist"
+                        item-text="item_name"
+                        item-value="item_id"
+                        label="Type and choose an Item"
+                      ></v-combobox>
+                    </v-flex>
+                    <v-flex xs12 md4 v-bind:key="item">
+                      <v-text-field v-model="item.imrp" type="number" label="MRP" readonly></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 md4 v-bind:key="item">
+                      <v-text-field v-model="item.iqty" type="number" label="Qty"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12 md4 v-bind:key="item">
+                      <v-text-field v-model="item.iprice" type="number" label="Price"></v-text-field>
+                    </v-flex>
+                  </template>
                   <v-flex xs12>
-                    <v-text-field v-model="part" label="Particular*" required></v-text-field>
+                    <v-btn>Add</v-btn>
                   </v-flex>
-                  <v-flex xs12>
-                    <v-text-field v-model="dbt" type="number" label="Debit"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12>
-                    <v-text-field v-model="cdt" type="number" label="Credit"></v-text-field>
-                  </v-flex>
+
                 </v-layout>
               </v-container>
               <small>*indicates required field</small>
@@ -119,9 +143,16 @@ export default {
       dialog: false,
       show2: false,
       date: new Date().toISOString().substr(0, 10),
-      part: '',
-      dbt: 0,
-      cdt: 0,
+      invlist: [],
+      soName: '',
+      soAddress: '',
+      soPhone: '',
+      soItems: [{
+        iid: '',
+        imrp: '',
+        iqty: 0,
+        iprice: 0
+      }],
       menu2: false,
       headers: [
         { text: 'Date', align: 'left', value: 'entry_date' },
