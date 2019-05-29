@@ -50,6 +50,22 @@ export default new Router({
       // this generates a separate chunk (about.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import(/* webpackChunkName: "journal" */ './views/Journal.vue')
+    },
+    {
+      path: '/balancesheet',
+      name: 'balancesheet',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "balancesheet" */ './views/BalanceSheet.vue')
+    },
+    {
+      path: '/inventorymanagement',
+      name: 'inventorymanagement',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "inventorymanagement" */ './views/InventoryManagement.vue')
     }
   ]
 })
